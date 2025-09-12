@@ -6,11 +6,13 @@
 
 Servo myservo;
 
+float offset = 0;
+
 void setup() {
   //setting up mpu
   Wire.begin();
   Wire.beginTransmission(mpu);
-  Wire.write(0x6B);
+  Wire.write(0x6B); //PWR_MGMT
   Wire.write(0); //waking up the mpu
   Wire.endTransmission(true);
 
@@ -31,9 +33,6 @@ void loop() {
 
   int16_t ACCEL_X_OUT = (ACCEL_X_H << 8) | ACCEL_X_L; //combining high and low bits
   float xAcc = (float)ACCEL_X_OUT / 16384.0; //converting raw data to g using LSB sens
-  
-  //Serial.print(xAcc);
-  //Serial.println();
 
   //reading acceleration of y axis
   Wire.beginTransmission(mpu);
@@ -45,18 +44,23 @@ void loop() {
 
   int16_t ACCEL_Y_OUT = (ACCEL_Y_H << 8) | ACCEL_Y_L; //combining high and low bits
   float yAcc = (float)ACCEL_Y_OUT / 16384.0; //converting raw data to g using LSB sens
-
-  //Serial.print(yAcc);
-  //Serial.println();
   
   //computing acceleration due to gravity using angle between xAcc and yAcc
   float gAcc = atan2(yAcc, xAcc);
 
+  //getting offset from serial monitor
+  if(Serial.available() > 0){ //if there are more than 0 bytes available to be read
+    String input = Serial.readStringUntil('\n');
+    offset = input.toFloat();
+  }
+
   //converting from rads to degrees
   float gDeg = gAcc * 180.0 / PI;
-  float servoDeg = 90.0 + gDeg;
+  float servoDeg = 90.0 + gDeg + offset;
 
-  Serial.print(servoDeg); 
+  //printing to serial monitor
+  Serial.print("X: "); Serial.print(xAcc); Serial.print(" Y: "); Serial.print(yAcc);
+  Serial.print("Servo: "); Serial.print(servoDeg);
   Serial.println();
 
   myservo.write((int)servoDeg);
