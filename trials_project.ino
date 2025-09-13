@@ -16,7 +16,7 @@ void setup() {
   Wire.write(0); //waking up the mpu
   Wire.endTransmission(true);
 
-  Serial.begin(9600);
+  Serial.begin(250000);
 
   myservo.attach(9);
 
