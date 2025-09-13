@@ -56,11 +56,15 @@ void loop() {
 
   //converting from rads to degrees
   float gDeg = gAcc * 180.0 / PI;
-  float servoDeg = 90.0 + gDeg + offset;
+
+  //calculating serco position
+  float servoDeg = 97.0 + gDeg + offset;
+  //               ^^^^ was 90 before, but the servo was a little off from pointing directly upwards
+  //                    this 7 degree addition came from testing with the serial monitor offset
 
   //printing to serial monitor
   Serial.print("X: "); Serial.print(xAcc); Serial.print(" Y: "); Serial.print(yAcc);
-  Serial.print("Servo: "); Serial.print(servoDeg);
+  Serial.print(" Servo: "); Serial.print(servoDeg);
   Serial.println();
 
   myservo.write((int)servoDeg);
