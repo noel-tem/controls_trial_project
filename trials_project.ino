@@ -25,12 +25,11 @@ void setup() {
 void loop() {
   //reading acceleration of x axis
   Wire.beginTransmission(mpu);
-  Wire.write(0x3b);
+  Wire.write(0x3b); //accelerometer output registers are 3b through 3f
   Wire.endTransmission();
-  Wire.requestFrom(mpu, 2); //requesting 2 bytes at 3b (ACCEL_XOUT)
+  Wire.requestFrom(mpu, 2); //requesting 2 bytes; gets both high and low for full 16 bit value
   uint8_t ACCEL_X_H = Wire.read();
   uint8_t ACCEL_X_L = Wire.read();
-
   int16_t ACCEL_X_OUT = (ACCEL_X_H << 8) | ACCEL_X_L; //combining high and low bits
   float xAcc = (float)ACCEL_X_OUT / 16384.0; //converting raw data to g using LSB sens
 
@@ -41,9 +40,18 @@ void loop() {
   Wire.requestFrom(mpu, 2);
   uint8_t ACCEL_Y_H = Wire.read();
   uint8_t ACCEL_Y_L = Wire.read();
-
   int16_t ACCEL_Y_OUT = (ACCEL_Y_H << 8) | ACCEL_Y_L; //combining high and low bits
   float yAcc = (float)ACCEL_Y_OUT / 16384.0; //converting raw data to g using LSB sens
+
+  //reading acceleration of z axis (not needed for operation, but the trial project document asks for it)
+  Wire.beginTransmission(mpu);
+  Wire.write(0x3f);
+  Wire.endTransmission();
+  Wire.requestFrom(mpu, 2);
+  uint8_t ACCEL_Z_H = Wire.read();
+  uint8_t ACCEL_Z_L = Wire.read();
+  int16_t ACCEL_Z_OUT = (ACCEL_Z_H << 8) | ACCEL_Z_L;
+  float zAcc = (float)ACCEL_Z_OUT / 16384.0;
   
   //computing acceleration due to gravity using angle between xAcc and yAcc
   float gAcc = atan2(yAcc, xAcc);
@@ -59,11 +67,12 @@ void loop() {
 
   //calculating serco position
   float servoDeg = 97.0 + gDeg + offset;
-  //               ^^^^ was 90 before, but the servo was a little off from pointing directly upwards
+  //               ^^^^ was 90 before, but the servo was a little off from pointing directly upwards;
   //                    this 7 degree addition came from testing with the serial monitor offset
 
   //printing to serial monitor
   Serial.print("X: "); Serial.print(xAcc); Serial.print(" Y: "); Serial.print(yAcc);
+  Serial.print(" Z: "); Serial.print(zAcc);
   Serial.print(" Servo: "); Serial.print(servoDeg);
   Serial.println();
 
