@@ -15,7 +15,7 @@ void setup() {
   Wire.beginTransmission(mpu);
   Wire.write(0x6B); //PWR_MGMT
   Wire.write(0); //waking up the mpu
-  Wire.endTransmission(true);
+  Wire.endTransmission(true); //stop = true
 
   Serial.begin(19200);
 
@@ -36,21 +36,16 @@ void loop() {
   uint8_t ACCEL_Z_H = Wire.read();
   uint8_t ACCEL_Z_L = Wire.read();
 
-  //combining high and low bits
-  int16_t ACCEL_X_OUT = (ACCEL_X_H << 8) | ACCEL_X_L;
-  int16_t ACCEL_Y_OUT = (ACCEL_Y_H << 8) | ACCEL_Y_L; 
-  int16_t ACCEL_Z_OUT = (ACCEL_Z_H << 8) | ACCEL_Z_L;
+  //combining high and low bits, then converting to g using LSB sensitivity
+  float xAcc = float((ACCEL_X_H << 8) | ACCEL_X_L) / LSB_SENS;
+  float yAcc = float((ACCEL_Y_H << 8) | ACCEL_Y_L) / LSB_SENS; 
+  float zAcc = float((ACCEL_Z_H << 8) | ACCEL_Z_L) / LSB_SENS;
 
-  //converting raw data to g using LSB sens
-  float xAcc = (float)ACCEL_X_OUT / LSB_SENS; 
-  float yAcc = (float)ACCEL_Y_OUT / LSB_SENS;
-  float zAcc = (float)ACCEL_Z_OUT / LSB_SENS;
-  
-  //computing angle between y and x acceleration and cnoverting from radians to degrees
+  //computing angle between y and x acceleration and converting from radians to degrees
   float gAngle = atan2(yAcc, xAcc) * (180.0 / PI);
 
   //getting offset from serial monitor
-  if(Serial.available() > 0){ //if there are more than 0 bytes available to be read
+  if(Serial.available() > 0){ 
     String input = Serial.readStringUntil('\n');
     offset = input.toFloat();
   }
@@ -66,6 +61,11 @@ void loop() {
   Serial.print(" Servo: "); Serial.print(servoDeg);
   Serial.println();
 
-  myservo.write((int)servoDeg);
-  delay(10);
+  if (zAcc > 0.7){ //this if statement stops the servo from jittering when placed flat
+    return;
+  }
+  else{
+    myservo.write(servoDeg);
+  }
+  delay(15);
 }
