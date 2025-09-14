@@ -3,7 +3,7 @@
 #include <Servo.h>
 
 #define mpu 0x68
-#define LSB_SENS 16384.0
+#define SENS_SF 16384.0
 
 Servo myservo;
 
@@ -36,10 +36,10 @@ void loop() {
   uint8_t ACCEL_Z_H = Wire.read();
   uint8_t ACCEL_Z_L = Wire.read();
 
-  //combining high and low bits, then converting to g using LSB sensitivity
-  float xAcc = float((ACCEL_X_H << 8) | ACCEL_X_L) / LSB_SENS;
-  float yAcc = float((ACCEL_Y_H << 8) | ACCEL_Y_L) / LSB_SENS; 
-  float zAcc = float((ACCEL_Z_H << 8) | ACCEL_Z_L) / LSB_SENS;
+  //combining high and low bits, then converting to g using sensitivity scale factor
+  float xAcc = float((ACCEL_X_H << 8) | ACCEL_X_L) / SENS_SF;
+  float yAcc = float((ACCEL_Y_H << 8) | ACCEL_Y_L) / SENS_SF; 
+  float zAcc = float((ACCEL_Z_H << 8) | ACCEL_Z_L) / SENS_SF;
 
   //computing angle between y and x acceleration and converting from radians to degrees
   float gAngle = atan2(yAcc, xAcc) * (180.0 / PI);
