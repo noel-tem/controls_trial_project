@@ -4,23 +4,18 @@
 
 #define mpu 0x68
 #define SENS_SF 16384.0
-
 Servo myservo;
-
 float offset = 0.0;
 
 void setup() {
   //setting up mpu
   Wire.begin();
   Wire.beginTransmission(mpu);
-  Wire.write(0x6B); //PWR_MGMT
+  Wire.write(0x6b); //PWR_MGMT
   Wire.write(0); //waking up the mpu
   Wire.endTransmission(true); //stop = true
-
   Serial.begin(19200);
-
   myservo.attach(9);
-
 }
 
 void loop() {
