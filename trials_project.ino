@@ -1,5 +1,4 @@
 #include <Wire.h>
-#include <math.h>
 #include <Servo.h>
 
 #define mpu 0x68
