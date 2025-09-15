@@ -43,27 +43,27 @@ void loop() {
   //computing angle between y and x acceleration and converting from radians to degrees
   float gAngle = atan2(yAcc, xAcc) * (180.0 / PI);
 
-  //getting offset from serial monitor
+  //getting offset from serial buffer
   if(Serial.available() > 0){ 
-    offset = Serial.parseFloat();
+    float temp = Serial.parseFloat();
+    if(temp <= 90 && temp >= -90){
+      offset = temp;
+    }
     Serial.read(); //clearing buffer
   }
 
   //calculating servo position
-  float servoDeg = 90.0 + gAngle + offset;
+  float servoPos = 90.0 + gAngle + offset;
 
   //printing to serial monitor
   Serial.print("X: "); Serial.print(xAcc); Serial.print(" Y: "); Serial.print(yAcc);
   Serial.print(" Z: "); Serial.print(zAcc);
-  Serial.print(" Servo: "); Serial.print(servoDeg);
+  Serial.print(" Servo: "); Serial.print(servoPos);
   Serial.println();
 
-  if (zAcc > 0.7){ //this if statement stops the servo from jittering when placed flat
-    delay(15);
-    return;
-  }
-  else if(servoDeg > 0 && servoDeg < 180){
-    myservo.write(servoDeg);
+  //writing to servo if servoPos is between 0 and 180;
+  if((servoPos > 0) && (servoPos < 180) && (zAcc < 0.7)){
+    myservo.write(servoPos); //             ^^^^^^^^^^ this stops the servo from jittering when laid flat
   }
   delay(15);
 }
