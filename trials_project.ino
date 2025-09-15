@@ -8,7 +8,6 @@ Servo myservo;
 float offset = 0.0;
 
 void setup() {
-  //setting up mpu
   Wire.begin();
   Wire.beginTransmission(mpu);
   Wire.write(0x6b); //PWR_MGMT
@@ -57,6 +56,7 @@ void loop() {
   Serial.println();
 
   if (zAcc > 0.7){ //this if statement stops the servo from jittering when placed flat
+    delay(15);
     return;
   }
   else{
