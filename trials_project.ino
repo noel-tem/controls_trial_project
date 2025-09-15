@@ -40,14 +40,12 @@ void loop() {
 
   //getting offset from serial monitor
   if(Serial.available() > 0){ 
-    String input = Serial.readStringUntil('\n');
-    offset = input.toFloat();
+    offset = Serial.parseFloat();
+    Serial.read(); //clearing buffer
   }
 
   //calculating servo position
-  float servoDeg = 97.0 + gAngle + offset;
-  //               ^^^^ was 90 before, but the servo was a little off from pointing directly upwards
-  //                    this 7 degree addition came from testing with the serial monitor offset
+  float servoDeg = 90.0 + gAngle + offset;
 
   //printing to serial monitor
   Serial.print("X: "); Serial.print(xAcc); Serial.print(" Y: "); Serial.print(yAcc);
