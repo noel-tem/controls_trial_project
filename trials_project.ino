@@ -30,10 +30,15 @@ void loop() {
   uint8_t ACCEL_Z_H = Wire.read();
   uint8_t ACCEL_Z_L = Wire.read();
 
-  //combining high and low bits, then converting to g using sensitivity scale factor
-  float xAcc = float((ACCEL_X_H << 8) | ACCEL_X_L) / SENS_SF;
-  float yAcc = float((ACCEL_Y_H << 8) | ACCEL_Y_L) / SENS_SF; 
-  float zAcc = float((ACCEL_Z_H << 8) | ACCEL_Z_L) / SENS_SF;
+  //combining high and low bits
+  int16_t ACCEL_X = (ACCEL_X_H << 8) | ACCEL_X_L;
+  int16_t ACCEL_Y = (ACCEL_Y_H << 8) | ACCEL_Y_L;
+  int16_t ACCEL_Z = (ACCEL_Z_H << 8) | ACCEL_Z_L;
+  
+  //dividing by sensitivity scaling factor
+  float xAcc = float(ACCEL_X) / SENS_SF;
+  float yAcc = float(ACCEL_Y) / SENS_SF; 
+  float zAcc = float(ACCEL_Z) / SENS_SF;
 
   //computing angle between y and x acceleration and converting from radians to degrees
   float gAngle = atan2(yAcc, xAcc) * (180.0 / PI);
@@ -57,7 +62,7 @@ void loop() {
     delay(15);
     return;
   }
-  else{
+  else if(servoDeg > 0 && servoDeg < 180){
     myservo.write(servoDeg);
   }
   delay(15);
